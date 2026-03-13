@@ -80,3 +80,24 @@ body {
     margin-top: 20px;
     font-weight: 300;
 }
+
+/* 12小时制时，数字时钟容器使用flex布局使AM/PM与时间底边对齐 */
+#digital-clock.format-12h {
+    display: flex;
+    align-items: flex-end;      /* 底部对齐 */
+    justify-content: center;
+}
+
+/* AM/PM 小字样式 */
+.ampm {
+    font-size: 0.3em;           /* 相对于父元素字体大小 */
+    margin-right: 0.2em;
+    line-height: 1;              /* 避免行高影响对齐 */
+    color: inherit;              /* 继承主颜色 */
+    opacity: 0.9;                /* 稍淡，可选 */
+}
+
+/* 时间数字保持原样，但消除多余行高 */
+.time {
+    line-height: 1;
+}
