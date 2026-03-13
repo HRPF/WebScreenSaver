@@ -43,7 +43,7 @@ namespace WebClockScreensaver
 
         // 鼠标移动检测
         private Point lastMousePos;
-        private const int MOUSE_MOVE_THRESHOLD = 10;
+        private const int MOUSE_MOVE_THRESHOLD = 100;
 
         public MainForm()
         {
@@ -74,9 +74,9 @@ namespace WebClockScreensaver
             this.FormClosed += MainForm_FormClosed;
 
             // 仍然保留窗体级别的事件处理作为备用
-            this.KeyDown += (s, e) => ExitScreensaver();
-            this.MouseMove += MainForm_MouseMove;
-            this.MouseClick += (s, e) => ExitScreensaver();
+            //this.KeyDown += (s, e) => ExitScreensaver();
+            //this.MouseMove += MainForm_MouseMove;
+            //this.MouseClick += (s, e) => ExitScreensaver();
         }
 
         // 窗体加载时安装钩子
@@ -202,6 +202,7 @@ namespace WebClockScreensaver
 
                         if (deltaX > MOUSE_MOVE_THRESHOLD || deltaY > MOUSE_MOVE_THRESHOLD)
                         {
+                            //System.Diagnostics.Debug.WriteLine($"MouseHookProc: msg={msg}, deltaPos=({deltaX},{deltaY})");
                             ExitScreensaver();
                             return (IntPtr)1; // 阻止事件传递
                         }
@@ -258,9 +259,9 @@ namespace WebClockScreensaver
                 //webView.IsTabStop = false;
 
                 // 添加事件处理作为备用
-                webView.MouseMove += MainForm_MouseMove;
-                webView.KeyDown += (s, e) => ExitScreensaver();
-                webView.MouseClick += (s, e) => ExitScreensaver();
+                //webView.MouseMove += MainForm_MouseMove;
+                //webView.KeyDown += (s, e) => ExitScreensaver();
+                //webView.MouseClick += (s, e) => ExitScreensaver();
 
                 // 创建WebView2环境
                 var env = await Microsoft.Web.WebView2.Core.CoreWebView2Environment.CreateAsync();
