@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WebScreenSaver": {
+      "commandName": "Project",
+      "commandLineArgs": "/s"
+    }
+  }
+}
