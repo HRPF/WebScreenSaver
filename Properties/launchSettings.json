@@ -1,8 +1,16 @@
 {
   "profiles": {
-    "WebScreenSaver": {
+    "预览WebScreenSaver": {
+      "commandName": "Project",
+      "commandLineArgs": "/p"
+    },
+    "运行WebScreenSaver": {
       "commandName": "Project",
       "commandLineArgs": "/s"
+    },
+    "配置WebScreenSaver": {
+      "commandName": "Project",
+      "commandLineArgs": "/c"
     }
   }
 }
