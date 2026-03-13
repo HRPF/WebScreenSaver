@@ -41,9 +41,10 @@ namespace WebClockScreensaver
         private HookProc keyboardProc;
         private HookProc mouseProc;
 
-        // 鼠标移动检测
+        // 鼠标移动检测（窗体 + 定时器）
         private Point lastMousePos;
-        private const int MOUSE_MOVE_THRESHOLD = 100;
+        private const int MOUSE_MOVE_THRESHOLD = 10;  // 阈值改为10像素
+        private System.Windows.Forms.Timer mouseTimer;
 
         public MainForm()
         {
@@ -53,11 +54,12 @@ namespace WebClockScreensaver
             // 初始化鼠标位置
             lastMousePos = Control.MousePosition;
 
-            // 启用键盘预览
+            // 启用键盘预览（备用）
             this.KeyPreview = true;
 
             // 隐藏鼠标光标
             this.Cursor = Cursors.No;
+            Cursor.Hide();
         }
 
         private void InitializeComponent()
@@ -72,11 +74,13 @@ namespace WebClockScreensaver
             // 窗体事件
             this.Load += MainForm_Load;
             this.FormClosed += MainForm_FormClosed;
+            this.MouseMove += MainForm_MouseMove;   // 启用窗体级别的鼠标移动检测
 
-            // 仍然保留窗体级别的事件处理作为备用
-            //this.KeyDown += (s, e) => ExitScreensaver();
-            //this.MouseMove += MainForm_MouseMove;
-            //this.MouseClick += (s, e) => ExitScreensaver();
+            // 定时器：定期检查鼠标全局位置（备用）
+            mouseTimer = new System.Windows.Forms.Timer();
+            mouseTimer.Interval = 500;
+            mouseTimer.Tick += (s, e) => CheckMouseMovement();
+            mouseTimer.Start();
         }
 
         // 窗体加载时安装钩子
@@ -89,6 +93,8 @@ namespace WebClockScreensaver
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             UninstallHooks();
+            mouseTimer?.Stop();
+            mouseTimer?.Dispose();
         }
 
         // 安装Windows钩子
@@ -107,7 +113,6 @@ namespace WebClockScreensaver
                     // 安装键盘钩子
                     keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboardProc,
                         GetModuleHandle(curModule.ModuleName), 0);
-
                     // 安装鼠标钩子
                     mouseHook = SetWindowsHookEx(WH_MOUSE_LL, mouseProc,
                         GetModuleHandle(curModule.ModuleName), 0);
@@ -142,18 +147,17 @@ namespace WebClockScreensaver
             }
         }
 
-        // 键盘钩子处理函数
+        // 键盘钩子处理函数（保留原逻辑）
         private IntPtr KeyboardHookProc(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0)
             {
                 int vkCode = Marshal.ReadInt32(lParam);
-
-                // 检查是否是功能键（F1-F12）或特殊键
+                // F1-F12 或任意按键均退出
                 if (vkCode >= 0x70 && vkCode <= 0x7B) // F1-F12
                 {
                     ExitScreensaver();
-                    return (IntPtr)1; // 阻止事件传递
+                    return (IntPtr)1;
                 }
 
                 // 检查常规按键
@@ -171,47 +175,21 @@ namespace WebClockScreensaver
             return CallNextHookEx(keyboardHook, nCode, wParam, lParam);
         }
 
-        // 鼠标钩子处理函数
+        // 鼠标钩子处理函数：仅处理点击、滚轮等非移动事件，移动事件由窗体和定时器处理
         private IntPtr MouseHookProc(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0)
             {
                 int msg = wParam.ToInt32();
-
-                // 处理鼠标点击
+                // 只处理鼠标点击和滚轮事件，移动事件忽略（交给窗体和定时器）
                 if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN ||
                     msg == WM_MBUTTONDOWN || msg == WM_MOUSEWHEEL)
                 {
                     ExitScreensaver();
                     return (IntPtr)1; // 阻止事件传递
                 }
-
-                // 处理鼠标移动
-                if (msg == WM_MOUSEMOVE)
-                {
-                    // 从lParam中提取鼠标位置
-                    MSLLHOOKSTRUCT mouseInfo = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
-
-                    Point currentPos = new Point(mouseInfo.pt.x, mouseInfo.pt.y);
-
-                    if (!lastMousePos.IsEmpty)
-                    {
-                        // 计算移动距离
-                        int deltaX = Math.Abs(currentPos.X - lastMousePos.X);
-                        int deltaY = Math.Abs(currentPos.Y - lastMousePos.Y);
-
-                        if (deltaX > MOUSE_MOVE_THRESHOLD || deltaY > MOUSE_MOVE_THRESHOLD)
-                        {
-                            //System.Diagnostics.Debug.WriteLine($"MouseHookProc: msg={msg}, deltaPos=({deltaX},{deltaY})");
-                            ExitScreensaver();
-                            return (IntPtr)1; // 阻止事件传递
-                        }
-                    }
-
-                    lastMousePos = currentPos;
-                }
+                // 其他鼠标消息（包括WM_MOUSEMOVE）直接传递，不做任何处理
             }
-
             // 传递给下一个钩子
             return CallNextHookEx(mouseHook, nCode, wParam, lParam);
         }
@@ -230,6 +208,22 @@ namespace WebClockScreensaver
             {
                 ExitScreensaver();
             }
+            // 注意：这里不更新lastMousePos，因为定时器会基于全局位置更新；
+            // 如果希望实时更新位置防止连续触发，也可以更新，但定时器逻辑会覆盖。
+            // 为简化，我们让定时器统一维护lastMousePos，所以这里不更新。
+        }
+
+        // 定时器检测：基于屏幕坐标的鼠标移动
+        private void CheckMouseMovement()
+        {
+            Point currentPos = Control.MousePosition;
+            if (!lastMousePos.IsEmpty &&
+                (Math.Abs(currentPos.X - lastMousePos.X) > MOUSE_MOVE_THRESHOLD ||
+                 Math.Abs(currentPos.Y - lastMousePos.Y) > MOUSE_MOVE_THRESHOLD))
+            {
+                ExitScreensaver();
+            }
+            lastMousePos = currentPos;
         }
 
         // 退出屏幕保护程序
@@ -245,7 +239,7 @@ namespace WebClockScreensaver
             }
         }
 
-        // 初始化WebView2
+        // 初始化WebView2（保持不变）
         private async void InitializeWebView()
         {
             try
@@ -255,15 +249,6 @@ namespace WebClockScreensaver
                 webView.AllowExternalDrop = false;
                 this.Controls.Add(webView);
 
-                // 禁用WebView2的交互
-                //webView.IsTabStop = false;
-
-                // 添加事件处理作为备用
-                //webView.MouseMove += MainForm_MouseMove;
-                //webView.KeyDown += (s, e) => ExitScreensaver();
-                //webView.MouseClick += (s, e) => ExitScreensaver();
-
-                // 创建WebView2环境
                 var env = await Microsoft.Web.WebView2.Core.CoreWebView2Environment.CreateAsync();
                 await webView.EnsureCoreWebView2Async(env);
 
