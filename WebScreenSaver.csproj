@@ -39,8 +39,4 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(TargetDir)$(ProjectName).scr&quot;" />
-  </Target>
-
 </Project>

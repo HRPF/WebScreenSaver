@@ -25,6 +25,7 @@ namespace WebClockScreensaver
                 if (arg.StartsWith("/c"))  // 配置模式
                 {
                     // 打开配置页面（简化版：直接打开web文件夹）
+                    // TODO 增加一个专门的配置界面，允许用户调整时钟样式、颜色等设置
                     string webPath = System.IO.Path.Combine(
                         Application.StartupPath, "web", "index.html");
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(webPath) { UseShellExecute = true });
@@ -36,11 +37,11 @@ namespace WebClockScreensaver
                 else if (arg.StartsWith("/p"))  // 预览模式
                 {
                     // 预览模式需要父窗口句柄，这里简化处理
-                    MessageBox.Show("预览模式需要传入窗口句柄参数");
+                    MessageBox.Show("暂不支持小窗预览。点击预览按钮进入全屏预览。");
                 }
                 else
                 {
-                    // 默认显示配置
+                    // TODO 无参数时也进入配置页面
                     string webPath = System.IO.Path.Combine(
                         Application.StartupPath, "web", "index.html");
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(webPath) { UseShellExecute = true });
