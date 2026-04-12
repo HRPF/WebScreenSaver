@@ -32,6 +32,50 @@ let analogInterval = null;
 let dateInterval = null;
 let animationFrame = null;
 
+// ================== 预览模式支持 ==================
+// 检测是否在预览模式中（通过 URL 参数 preview=true）
+const urlParams = new URLSearchParams(window.location.search);
+const isPreviewMode = urlParams.has('preview');
+
+/**
+ * 动态更新配置并重新初始化时钟
+ * @param {Object} newConfig 新的配置对象
+ */
+function updateConfig(newConfig) {
+    // 合并新配置到当前配置
+    config = { ...config, ...newConfig };
+    console.log('配置已更新:', config);
+
+    // 应用静态样式（背景、字体等）
+    applyStaticStyles();
+
+    // 重新初始化时钟
+    initClock();
+}
+
+// 监听来自父窗口的消息（用于配置更新）
+window.addEventListener('message', function(event) {
+    // 安全性检查：仅接受来自同源的消息，但预览模式需要允许所有源
+    // 在生产环境中可以考虑检查 event.origin
+    if (event.data && event.data.type === 'updateConfig') {
+        console.log('收到配置更新:', event.data.config);
+        updateConfig(event.data.config);
+    }
+});
+
+// 如果是在预览模式中，通知父窗口已就绪
+if (isPreviewMode) {
+    // 延迟发送，确保 DOM 已加载
+    setTimeout(() => {
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+                type: 'previewReady',
+                message: '预览时钟已加载'
+            }, '*');
+        }
+    }, 100);
+}
+
 // ================== 辅助函数 ==================
 /**
  * 将十六进制颜色字符串（如 #FFFFFF）转换为 RGB 对象
@@ -265,7 +309,12 @@ function initClock() {
         analogElem.style.display = 'block';
 		analogElem.style.width = config.analogSize;
 		analogElem.style.height = config.analogSize;   // 假设宽高相等，保持正方形
-        startAnalogClockWithAnimation();
+        // 预览模式下跳过初始动画，立即显示正确时间并开始更新
+        if (isPreviewMode) {
+            startAnalogClockUpdates();
+        } else {
+            startAnalogClockWithAnimation();
+        }
     } else {
         digitalElem.style.display = 'block';
         analogElem.style.display = 'none';

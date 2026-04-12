@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -24,11 +25,19 @@ namespace WebClockScreensaver
 
                 if (arg.StartsWith("/c"))  // 配置模式
                 {
-                    // 打开配置页面（简化版：直接打开web文件夹）
-                    // TODO 增加一个专门的配置界面，允许用户调整时钟样式、颜色等设置
-                    string webPath = System.IO.Path.Combine(
-                        Application.StartupPath, "web", "index.html");
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(webPath) { UseShellExecute = true });
+                    // 打开配置页面（config.html）
+                    string configPath = Path.Combine(Application.StartupPath, "web", "config.html");
+                    if (File.Exists(configPath))
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(configPath) { UseShellExecute = true });
+                    }
+                    else
+                    {
+                        MessageBox.Show("这个屏幕保护程序没有可以设置的选项",
+                                       "屏幕保护程序设置",
+                                       MessageBoxButtons.OK,
+                                       MessageBoxIcon.Information);
+                    }
                 }
                 else if (arg.StartsWith("/s"))  // 屏保模式
                 {
@@ -42,7 +51,7 @@ namespace WebClockScreensaver
                 else
                 {
                     // TODO 无参数时也进入配置页面
-                    string webPath = System.IO.Path.Combine(
+                    string webPath = Path.Combine(
                         Application.StartupPath, "web", "index.html");
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(webPath) { UseShellExecute = true });
                 }
@@ -50,7 +59,7 @@ namespace WebClockScreensaver
             else
             {
                 // 无参数时显示配置
-                string webPath = System.IO.Path.Combine(
+                string webPath = Path.Combine(
                     Application.StartupPath, "web", "index.html");
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(webPath) { UseShellExecute = true });
             }

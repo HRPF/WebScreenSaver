@@ -1,0 +1,351 @@
+/* config.css - 配置页面样式 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+}
+
+.main-content {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.config-form {
+    flex: 1;
+    min-width: 0; /* 防止flex元素溢出 */
+}
+
+.preview-section {
+    flex: 1;
+    min-width: 0;
+}
+
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+legend {
+    font-weight: bold;
+    color: #2c3e50;
+    padding: 0 10px;
+    font-size: 1.1rem;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #34495e;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-group input[type="color"] {
+    width: 60px;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-group input[type="range"] {
+    width: calc(100% - 50px);
+    vertical-align: middle;
+}
+
+.form-group small {
+    display: block;
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.form-group label input[type="radio"],
+.form-group label input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* 实时预览区域 */
+.preview-section h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.preview-container {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+#preview-frame {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background-color: #000;
+    border-radius: 4px;
+}
+
+.preview-help {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #e8f4fc;
+    border-radius: 4px;
+    border-left: 4px solid #3498db;
+}
+
+.preview-help p {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #2c3e50;
+}
+
+/* 按钮样式 */
+.form-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.form-buttons button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#reset-btn {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}
+
+#reset-btn:hover {
+    background-color: #d5dbdb;
+}
+
+#save-btn {
+    background-color: #2ecc71;
+    color: white;
+    flex: 1;
+}
+
+#save-btn:hover {
+    background-color: #27ae60;
+}
+
+/* 输出区域 */
+.output-section {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+}
+
+.output-section h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.instructions {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #e8f4fc;
+    border-radius: 4px;
+    border-left: 4px solid #3498db;
+}
+
+.instructions p {
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.instructions ol {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+.instructions li {
+    margin-bottom: 5px;
+}
+
+#config-output {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    background-color: #f8f8f8;
+    resize: vertical;
+    margin-bottom: 15px;
+}
+
+.output-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.output-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#copy-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+#copy-btn:hover {
+    background-color: #2980b9;
+}
+
+#close-output-btn {
+    background-color: #95a5a6;
+    color: white;
+}
+
+#close-output-btn:hover {
+    background-color: #7f8c8d;
+}
+
+/* 页脚 */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .main-content {
+        flex-direction: column;
+    }
+
+    .preview-container {
+        height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .form-buttons {
+        flex-direction: column;
+    }
+
+    .form-buttons button {
+        width: 100%;
+    }
+
+    .output-buttons {
+        flex-direction: column;
+    }
+
+    .output-buttons button {
+        width: 100%;
+    }
+}
+
+/* 表单验证样式 */
+.form-group input:invalid {
+    border-color: #e74c3c;
+}
+
+.form-group input:valid {
+    border-color: #2ecc71;
+}
+
+/* 范围滑块数值显示 */
+#glowOpacity-value {
+    display: inline-block;
+    width: 40px;
+    text-align: center;
+    font-weight: bold;
+    color: #2c3e50;
+}

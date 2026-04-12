@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>时钟屏保设置</title>
+    <link rel="stylesheet" href="config.css">
+    <!-- 加载当前配置 -->
+    <script src="config.js"></script>
+    <!-- 配置页面逻辑 -->
+    <script src="config-ui.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>时钟屏保设置</h1>
+            <p class="subtitle">调整时钟样式和显示选项</p>
+        </header>
+
+        <div class="main-content">
+            <!-- 左侧：配置表单 -->
+            <div class="config-form">
+                <form id="config-form">
+                    <!-- 时钟类型 -->
+                    <fieldset>
+                        <legend>时钟类型</legend>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="clockType" value="digital" id="clockType-digital">
+                                数字时钟
+                            </label>
+                            <label>
+                                <input type="radio" name="clockType" value="analog" id="clockType-analog">
+                                模拟时钟
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <!-- 时间格式 -->
+                    <fieldset>
+                        <legend>时间格式</legend>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="timeFormat" value="12h" id="timeFormat-12h">
+                                12小时制
+                            </label>
+                            <label>
+                                <input type="radio" name="timeFormat" value="24h" id="timeFormat-24h">
+                                24小时制
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="showSeconds" id="showSeconds">
+                                显示秒数
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="showDate" id="showDate">
+                                显示日期
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <!-- 颜色设置 -->
+                    <fieldset>
+                        <legend>颜色设置</legend>
+                        <div class="form-group">
+                            <label for="color">时钟颜色</label>
+                            <input type="color" id="color" name="color" value="#404040">
+                        </div>
+                        <div class="form-group">
+                            <label for="backgroundColor">背景颜色</label>
+                            <input type="color" id="backgroundColor" name="backgroundColor" value="#000000">
+                        </div>
+                        <div class="form-group">
+                            <label for="dateColor">日期颜色</label>
+                            <input type="color" id="dateColor" name="dateColor" value="#222222">
+                        </div>
+                        <div class="form-group">
+                            <label for="glowOpacity">辉光透明度</label>
+                            <input type="range" id="glowOpacity" name="glowOpacity" min="0" max="1" step="0.1" value="0.7">
+                            <span id="glowOpacity-value">0.7</span>
+                        </div>
+                    </fieldset>
+
+                    <!-- 字体和尺寸 -->
+                    <fieldset>
+                        <legend>字体和尺寸</legend>
+                        <div class="form-group">
+                            <label for="fontFamily">数字时钟字体</label>
+                            <select id="fontFamily" name="fontFamily">
+                                <option value="monospace, 'Courier New'">等宽字体 (Courier New)</option>
+                                <option value="Arial, sans-serif">Arial</option>
+                                <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
+                                <option value="'Times New Roman', serif">Times New Roman</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fontSize">数字时钟字号</label>
+                            <input type="text" id="fontSize" name="fontSize" value="8vw">
+                            <small>例如: 8vw, 64px, 5em</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateFontSize">日期字号</label>
+                            <input type="text" id="dateFontSize" name="dateFontSize" value="2vw">
+                            <small>例如: 2vw, 16px, 1.2em</small>
+                        </div>
+                    </fieldset>
+
+                    <!-- 模拟时钟设置 -->
+                    <fieldset>
+                        <legend>模拟时钟设置</legend>
+                        <div class="form-group">
+                            <label for="analogSize">时钟尺寸</label>
+                            <input type="text" id="analogSize" name="analogSize" value="50vmin">
+                            <small>例如: 50vmin, 300px, 80%</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="hourHandColor">时针颜色</label>
+                            <input type="color" id="hourHandColor" name="hourHandColor" value="#666666">
+                        </div>
+                        <div class="form-group">
+                            <label for="minuteHandColor">分针颜色</label>
+                            <input type="color" id="minuteHandColor" name="minuteHandColor" value="#555555">
+                        </div>
+                        <div class="form-group">
+                            <label for="secondHandColor">秒针颜色</label>
+                            <input type="color" id="secondHandColor" name="secondHandColor" value="#DD2222">
+                        </div>
+                        <div class="form-group">
+                            <label for="hourHandWidth">时针粗细 (像素)</label>
+                            <input type="number" id="hourHandWidth" name="hourHandWidth" min="1" max="10" value="4">
+                        </div>
+                        <div class="form-group">
+                            <label for="minuteHandWidth">分针粗细 (像素)</label>
+                            <input type="number" id="minuteHandWidth" name="minuteHandWidth" min="1" max="10" value="2">
+                        </div>
+                        <div class="form-group">
+                            <label for="secondHandWidth">秒针粗细 (像素)</label>
+                            <input type="number" id="secondHandWidth" name="secondHandWidth" min="1" max="10" value="1">
+                        </div>
+                    </fieldset>
+
+                    <!-- 高级设置 -->
+                    <fieldset>
+                        <legend>高级设置</legend>
+                        <div class="form-group">
+                            <label for="updateInterval">更新时间间隔 (毫秒)</label>
+                            <input type="number" id="updateInterval" name="updateInterval" min="100" max="5000" step="100" value="1000">
+                            <small>值越小更新越频繁 (100-5000)</small>
+                        </div>
+                    </fieldset>
+
+                    <!-- 按钮 -->
+                    <div class="form-buttons">
+                        <button type="button" id="reset-btn">恢复默认设置</button>
+                        <button type="button" id="save-btn">保存设置</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 右侧：实时预览 -->
+            <div class="preview-section">
+                <h2>实时预览</h2>
+                <div class="preview-container">
+                    <iframe id="preview-frame" src="index.html?preview=true" frameborder="0"></iframe>
+                    <div class="preview-help">
+                        <p>预览会实时反映您的设置更改。</p>
+                        <p>注意：预览可能与实际屏保略有差异。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 保存输出区域 -->
+        <div class="output-section" id="output-section" style="display: none;">
+            <h2>保存配置</h2>
+            <div class="instructions">
+                <p>请复制以下内容，替换 <code>web/config.js</code> 文件中的内容：</p>
+                <ol>
+                    <li>全选下方文本框中的内容 (Ctrl+A)</li>
+                    <li>复制到剪贴板 (Ctrl+C)</li>
+                    <li>打开 <code>web/config.js</code> 文件</li>
+                    <li>替换文件中的所有内容</li>
+                    <li>保存文件并重启屏保</li>
+                </ol>
+            </div>
+            <textarea id="config-output" readonly rows="15"></textarea>
+            <div class="output-buttons">
+                <button type="button" id="copy-btn">复制到剪贴板</button>
+                <button type="button" id="close-output-btn">关闭</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>时钟屏保配置页面 &copy; 2026</p>
+        </footer>
+    </div>
+</body>
+</html>
