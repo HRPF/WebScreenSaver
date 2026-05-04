@@ -1,0 +1,175 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: -apple-system, "Microsoft YaHei", sans-serif;
+    background: #1a1a2e;
+    color: #e0e0e0;
+}
+
+.layout {
+    display: flex;
+    height: 100vh;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #16213e;
+    border-right: 1px solid #2a2a4a;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+}
+
+.sidebar h2 {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0 16px 12px;
+    color: #8888aa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.screensaver-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 8px;
+}
+
+.screensaver-card {
+    padding: 12px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+}
+
+.screensaver-card:hover {
+    background: #1f2b4d;
+}
+
+.screensaver-card.active {
+    background: #2a3a6a;
+    outline: 1px solid #4a6ab0;
+}
+
+.screensaver-card .name {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.screensaver-card .folder {
+    font-size: 11px;
+    color: #666;
+    margin-top: 2px;
+    font-family: Consolas, monospace;
+}
+
+/* ── Main area ── */
+.main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #0f0f23;
+}
+
+.preview-container {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    min-height: 0;
+}
+
+.preview-container iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    display: none;
+    background: #000;
+}
+
+.preview-container iframe.active {
+    display: block;
+}
+
+.preview-placeholder {
+    position: absolute;
+    color: #555;
+    font-size: 16px;
+}
+
+.preview-placeholder.hidden {
+    display: none;
+}
+
+/* ── Action bar ── */
+.action-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: #16213e;
+    border-top: 1px solid #2a2a4a;
+}
+
+.action-info {
+    flex: 1;
+    font-size: 12px;
+    color: #667;
+    line-height: 1.4;
+}
+
+.action-info.hint {
+    color: #c8a050;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.action-bar button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+}
+
+.action-bar button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+#btn-configure {
+    background: #2a3a6a;
+    color: #c0d0f0;
+}
+
+#btn-configure:hover:not(:disabled) {
+    background: #3a4a7a;
+}
+
+#btn-apply {
+    background: #4a6ab0;
+    color: #fff;
+}
+
+#btn-apply:hover:not(:disabled) {
+    background: #5a7ac0;
+}

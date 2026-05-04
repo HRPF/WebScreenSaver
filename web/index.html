@@ -1,25 +1,33 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
-    <title>简约时钟屏保</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- 先加载配置 -->
-    <script src="config.js"></script>
-    <!-- 后加载时钟逻辑 -->
-    <script src="clock.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>屏保配置</title>
+    <link rel="stylesheet" href="main-config.css">
 </head>
 <body>
-    <div class="container">
-        <div id="digital-clock" class="clock"></div>
-        <div id="analog-clock" class="analog-container">
-            <div class="clock-face">
-                <div class="hand hour-hand"></div>
-                <div class="hand minute-hand"></div>
-                <div class="hand second-hand"></div>
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>屏保列表</h2>
+            <div id="screensaver-list" class="screensaver-list"></div>
+        </aside>
+        <main class="main-area">
+            <div class="preview-container">
+                <div class="preview-placeholder" id="preview-placeholder">
+                    <p>请从左侧选择一个屏保</p>
+                </div>
+                <iframe id="preview-frame" frameborder="0"></iframe>
             </div>
-        </div>
-        <div class="date" id="date-display"></div>
+            <div class="action-bar">
+                <div class="action-info" id="action-info"></div>
+                <div class="action-buttons">
+                    <button id="btn-configure" disabled>样式设置</button>
+                    <button id="btn-apply" disabled>启用屏保</button>
+                </div>
+            </div>
+        </main>
     </div>
+    <script src="main-config.js"></script>
 </body>
 </html>

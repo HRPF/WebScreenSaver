@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>简约时钟屏保</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 先加载配置 -->
+    <script src="config.js"></script>
+    <!-- 后加载时钟逻辑 -->
+    <script src="clock.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="digital-clock" class="clock"></div>
+        <div id="analog-clock" class="analog-container">
+            <div class="clock-face">
+                <div class="hand hour-hand"></div>
+                <div class="hand minute-hand"></div>
+                <div class="hand second-hand"></div>
+            </div>
+        </div>
+        <div class="date" id="date-display"></div>
+    </div>
+</body>
+</html>

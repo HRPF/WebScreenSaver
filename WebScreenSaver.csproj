@@ -22,30 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="web\clock.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="web\config-ui.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="web\config.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="web\config.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="web\config.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="web\config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="web\index.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="web\style.css">
+    <None Update="web\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!-- 编译后自动复制 .exe 为 .scr（屏幕保护程序格式） -->
+  <Target Name="CopyToScr" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).exe"
+          DestinationFiles="$(TargetDir)$(AssemblyName).scr"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

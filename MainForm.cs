@@ -254,15 +254,21 @@ namespace WebClockScreensaver
 
                 // 获取web文件夹路径
                 string webFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "web");
-                string indexPath = Path.Combine(webFolder, "index.html");
+                string selected = ConfigManager.GetSelectedScreensaver();
 
+                // 使用虚拟主机映射，统一同源策略，支持 iframe + postMessage
+                webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                    "screensaver.local", webFolder,
+                    Microsoft.Web.WebView2.Core.CoreWebView2HostResourceAccessKind.Allow);
+
+                string indexPath = Path.Combine(webFolder, selected, "index.html");
                 if (File.Exists(indexPath))
                 {
-                    webView.Source = new Uri(indexPath);
+                    webView.Source = new Uri($"https://screensaver.local/{selected}/index.html");
                 }
                 else
                 {
-                    webView.NavigateToString("<html><body style='background:black;color:white;font-size:48px;text-align:center;padding-top:200px'>时钟屏保<br>请创建web/index.html文件</body></html>");
+                    webView.NavigateToString($"<html><body style='background:black;color:white;font-size:48px;text-align:center;padding-top:200px'>屏保加载失败<br>未找到 {selected}/index.html</body></html>");
                 }
 
                 // 禁用浏览器功能
