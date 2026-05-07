@@ -26,7 +26,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
-OutputDir=D:\MyCode\ScreenSaverClock
+OutputDir=.\
 OutputBaseFilename=Web屏保_v{#MyAppVersion}_Installer
 SolidCompression=yes
 WizardStyle=modern windows11
@@ -39,18 +39,18 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\web\*"; DestDir: "{app}\web"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\Microsoft.Web.WebView2.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\Microsoft.Web.WebView2.Core.xml"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\Microsoft.Web.WebView2.WinForms.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\Microsoft.Web.WebView2.WinForms.xml"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\Microsoft.Web.WebView2.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\Microsoft.Web.WebView2.Wpf.xml"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\WebScreenSaver.deps.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\WebScreenSaver.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\MyCode\ScreenSaverClock\WinFormsApp1\bin\Release\net8.0-windows\WebScreenSaver.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\net8.0-windows\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\net8.0-windows\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "bin\Release\net8.0-windows\web\*"; DestDir: "{app}\web"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "bin\Release\net8.0-windows\Microsoft.Web.WebView2.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\net8.0-windows\Microsoft.Web.WebView2.Core.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\net8.0-windows\Microsoft.Web.WebView2.WinForms.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\net8.0-windows\Microsoft.Web.WebView2.WinForms.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\net8.0-windows\Microsoft.Web.WebView2.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\net8.0-windows\Microsoft.Web.WebView2.Wpf.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\net8.0-windows\WebScreenSaver.deps.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\net8.0-windows\WebScreenSaver.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\net8.0-windows\WebScreenSaver.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
