@@ -12,6 +12,7 @@ public class ConfigForm : Form
     private string webFolder = null!;
     private Button btnBack = null!;
     private Panel toolbar = null!;
+    private TableLayoutPanel layoutRoot = null!;
 
     public ConfigForm()
     {
@@ -25,19 +26,29 @@ public class ConfigForm : Form
         Size = new System.Drawing.Size(1200, 800);
         StartPosition = FormStartPosition.CenterScreen;
         MinimumSize = new System.Drawing.Size(900, 600);
-        BackColor = System.Drawing.Color.FromArgb(26, 26, 46);
+        BackColor = System.Drawing.Color.FromArgb(245, 247, 251);
         KeyPreview = true;
         KeyDown += (_, e) =>
         {
             if (e.KeyCode == Keys.Escape) HandleBack();
         };
 
+        // 根布局容器：明确的两行（48px 工具栏 + 剩余 WebView2）
+        layoutRoot = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            RowCount = 2,
+            ColumnCount = 1,
+        };
+        layoutRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        layoutRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+
         // 顶部工具栏
         toolbar = new Panel
         {
-            Height = 40,
-            Dock = DockStyle.Top,
-            BackColor = System.Drawing.Color.FromArgb(20, 20, 40),
+            Height = 48,
+            Dock = DockStyle.Fill,
+            BackColor = System.Drawing.Color.FromArgb(232, 236, 243),
         };
 
         btnBack = new Button
@@ -45,29 +56,34 @@ public class ConfigForm : Form
             Text = "← 返回",
             FlatStyle = FlatStyle.Flat,
             ForeColor = System.Drawing.Color.White,
-            BackColor = System.Drawing.Color.Transparent,
-            FlatAppearance = { BorderSize = 0 },
+            BackColor = System.Drawing.Color.FromArgb(99, 133, 244),
+            FlatAppearance = { BorderSize = 0, MouseOverBackColor = System.Drawing.Color.FromArgb(80, 110, 220) },
             TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
-            Size = new System.Drawing.Size(80, 40),
-            Location = new System.Drawing.Point(4, 0),
+            Font = new System.Drawing.Font("Microsoft YaHei UI", 10, System.Drawing.FontStyle.Bold),
+            Size = new System.Drawing.Size(90, 40),
+            Location = new System.Drawing.Point(8, 4),
             Cursor = Cursors.Hand,
+            Margin = new Padding(0),
+            Padding = new Padding(12, 0, 0, 0),
+            UseVisualStyleBackColor = false,
         };
         btnBack.Click += (_, _) => HandleBack();
 
         var lblTitle = new Label
         {
             Text = "屏保配置",
-            ForeColor = System.Drawing.Color.White,
+            ForeColor = System.Drawing.Color.FromArgb(26, 29, 46),
             BackColor = System.Drawing.Color.Transparent,
             TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
             Dock = DockStyle.Fill,
-            Font = new System.Drawing.Font("Microsoft YaHei UI", 10),
+            Font = new System.Drawing.Font("Microsoft YaHei UI", 10, System.Drawing.FontStyle.Bold),
         };
 
         toolbar.Controls.Add(btnBack);
         toolbar.Controls.Add(lblTitle);
 
-        Controls.Add(toolbar);
+        layoutRoot.Controls.Add(toolbar, 0, 0);
+        Controls.Add(layoutRoot);
     }
 
     private void HandleBack()
@@ -88,7 +104,7 @@ public class ConfigForm : Form
         try
         {
             webView = new WebView2 { Dock = DockStyle.Fill };
-            Controls.Add(webView);
+            layoutRoot.Controls.Add(webView, 0, 1);
 
             var env = await CoreWebView2Environment.CreateAsync();
             await webView.EnsureCoreWebView2Async(env);

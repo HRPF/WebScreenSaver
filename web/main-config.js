@@ -12,6 +12,7 @@
     var btnConfigure = document.getElementById('btn-configure');
     var btnApply = document.getElementById('btn-apply');
     var actionInfo = document.getElementById('action-info');
+    var countBadge = document.getElementById('count-badge');
 
     // ── Check if running inside WebView2 ──
     var isWebView = typeof chrome !== 'undefined' && chrome.webview;
@@ -76,18 +77,37 @@
         }
     });
 
+    // ── Get icon for a screensaver (based on name) ──
+    function getIcon(id) {
+        var icons = ['&#9670;', '&#9733;', '&#9829;', '&#9729;', '&#9788;', '&#9730;', '&#9881;', '&#9835;'];
+        var hash = 0;
+        for (var i = 0; i < id.length; i++) { hash = id.charCodeAt(i) + ((hash << 5) - hash); }
+        return icons[Math.abs(hash) % icons.length];
+    }
+
     // ── Render screensaver list ──
     function renderList() {
         listEl.innerHTML = '';
+        countBadge.textContent = screensavers.length;
         screensavers.forEach(function (id) {
             var card = document.createElement('div');
             card.className = 'screensaver-card' + (id === currentSelection ? ' active' : '');
             card.dataset.id = id;
 
+            var top = document.createElement('div');
+            top.className = 'card-top';
+
+            var icon = document.createElement('span');
+            icon.className = 'card-icon';
+            icon.innerHTML = getIcon(id);
+            top.appendChild(icon);
+
             var nameEl = document.createElement('div');
             nameEl.className = 'name';
             nameEl.textContent = id;
-            card.appendChild(nameEl);
+            top.appendChild(nameEl);
+
+            card.appendChild(top);
 
             var folderEl = document.createElement('div');
             folderEl.className = 'folder';

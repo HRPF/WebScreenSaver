@@ -9,15 +9,25 @@
 <body>
     <div class="layout">
         <aside class="sidebar">
-            <h2>屏保列表</h2>
+            <div class="sidebar-header">
+                <h1>
+                    <span class="logo-icon">&#9670;</span>
+                    屏保配置
+                    <span class="count-badge" id="count-badge">0</span>
+                </h1>
+                <div class="subtitle">选择并自定义你的屏幕保护</div>
+            </div>
             <div id="screensaver-list" class="screensaver-list"></div>
         </aside>
         <main class="main-area">
             <div class="preview-container">
                 <div class="preview-placeholder" id="preview-placeholder">
+                    <div class="placeholder-icon">&#9670;</div>
                     <p>请从左侧选择一个屏保</p>
                 </div>
-                <iframe id="preview-frame" frameborder="0"></iframe>
+                <div class="preview-frame-wrapper">
+                    <iframe id="preview-frame" frameborder="0"></iframe>
+                </div>
             </div>
             <div class="action-bar">
                 <div class="action-info" id="action-info"></div>

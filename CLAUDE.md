@@ -14,7 +14,7 @@ This is a Windows screensaver application that supports **multiple web-based scr
   - Fullscreen screensaver: `dotnet run --launch-profile "运行WebScreenSaver"`
   - Preview mode (unsupported): `dotnet run --launch-profile "预览WebScreenSaver"`
 - Publish as single executable: `dotnet publish -c Release`
-  - Output is a self-contained WinExe (WebScreenSaver.exe) in `bin\Release\net8.0-windows\publish\`
+  - Output is a self-contained WinExe (WebScreenSaver.exe) in `bin\Release\net8.0-windows`
   - To install as a screensaver, rename `.exe` to `.scr` and place in `C:\Windows\System32\`
 
 ## Project Structure

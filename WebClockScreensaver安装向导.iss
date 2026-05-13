@@ -3,7 +3,7 @@
 ; Non-commercial use only
 
 #define MyAppName "WebScreenSaver"
-#define MyAppVersion "0.5"
+#define MyAppVersion "0.5.1"
 #define MyAppExeName "WebScreenSaver.scr"
 
 [Setup]
