@@ -67,7 +67,30 @@ if (isPreviewMode) {
 - 跳过开场动画或长过渡动画, 立即显示完整内容（可选）
 - 发送 `previewReady` 消息通知父窗口
 
-### 二、config.html —— 样式配置页（可选）
+#### 主屏保程序如何找到入口、打开网页
+
+```c#
+            // 获取web文件夹路径
+            string webFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "web");
+            string selected = ConfigManager.GetSelectedScreensaver();
+
+            // 使用虚拟主机映射，统一同源策略，支持 iframe + postMessage
+            webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                "screensaver.local", webFolder,
+                Microsoft.Web.WebView2.Core.CoreWebView2HostResourceAccessKind.Allow);
+
+            string indexPath = Path.Combine(webFolder, selected, "index.html");
+            if (File.Exists(indexPath))
+            {
+                webView.Source = new Uri($"https://screensaver.local/{selected}/index.html");
+            }
+            else
+            {
+                webView.NavigateToString($"<html><body style='background:black;color:white;font-size:48px;text-align:center;padding-top:200px'>屏保加载失败<br>未找到 {selected}/index.html</body></html>");
+            }
+```
+
+### config.html —— 样式配置页（可选）
 
 #### 用途
 

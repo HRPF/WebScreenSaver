@@ -27,7 +27,7 @@ namespace WebClockScreensaver
             }
             else if (arg.StartsWith("/p"))  // 预览模式
             {
-                MessageBox.Show("暂不支持小窗预览。点击预览按钮进入全屏预览。", "WebScreenSaver");
+                // 预览模式暂不支持
             }
             else
             {
