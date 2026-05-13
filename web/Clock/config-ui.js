@@ -1,5 +1,28 @@
 // config-ui.js - 配置页面逻辑
 
+// 检测是否在 WebView2 中运行
+const isWebView = typeof chrome !== 'undefined' && chrome.webview;
+
+// 如果在 WebView2 中，监听来自 C# 的已保存配置注入
+if (isWebView) {
+    chrome.webview.addEventListener('message', function(e) {
+        if (e.data.type === 'loadSettings') {
+            currentConfig = { ...DEFAULT_CONFIG, ...e.data.settings };
+            updateFormFromConfig();
+            updatePreview();
+        }
+    });
+}
+
+/**
+ * 从当前 URL 提取屏保 ID
+ * URL 格式: https://screensaver.local/Clock/config.html → "Clock"
+ */
+function getCurrentScreensaverId() {
+    var match = window.location.pathname.match(/^\/([^\/]+)\/config\.html$/);
+    return match ? match[1] : null;
+}
+
 // 默认配置（与 clock.js 中的 DEFAULT_CONFIG 保持一致）
 const DEFAULT_CONFIG = {
     clockType: "analog",
@@ -237,18 +260,29 @@ function saveConfig() {
         return;
     }
 
-    // 生成 config.js 内容
-    const configContent = generateConfigJS();
+    if (isWebView) {
+        // WebView2 模式：通过 C# 持久化到磁盘
+        var id = getCurrentScreensaverId();
+        chrome.webview.postMessage(JSON.stringify({
+            type: 'saveSettings',
+            id: id,
+            settings: currentConfig
+        }));
+        alert('设置已保存！');
+    } else {
+        // 浏览器回退：显示生成的 config.js 代码供手动复制
+        const configContent = generateConfigJS();
 
-    // 显示输出区域
-    const outputSection = document.getElementById('output-section');
-    const outputTextarea = document.getElementById('config-output');
+        // 显示输出区域
+        const outputSection = document.getElementById('output-section');
+        const outputTextarea = document.getElementById('config-output');
 
-    outputTextarea.value = configContent;
-    outputSection.style.display = 'block';
+        outputTextarea.value = configContent;
+        outputSection.style.display = 'block';
 
-    // 滚动到输出区域
-    outputSection.scrollIntoView({ behavior: 'smooth' });
+        // 滚动到输出区域
+        outputSection.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 /**

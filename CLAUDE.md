@@ -20,11 +20,13 @@ This is a Windows screensaver application that supports **multiple web-based scr
 ## Project Structure
 
 ```
-├── ConfigManager.cs          ← 配置持久化 + 屏保自动发现
-├── ConfigForm.cs             ← 主配置窗体（WebView2 承载主配置页）
-├── MainForm.cs               ← 全屏幕保窗体（WebView2 + 键盘/鼠标钩子）
+├── ConfigManager.cs          ← 配置持久化 + 屏保自动发现 + 屏保设置读写
+├── ConfigForm.cs             ← 主配置窗体（WebView2 承载主配置页、屏保配置页）
+├── MainForm.cs               ← 全屏幕保窗体（WebView2 + 键盘/鼠标钩子 + 设置注入）
 ├── Program.cs                ← 入口点（/c → ConfigForm, /s → MainForm）
 ├── config.json               ← 持久化文件：当前选中的屏保 ID
+├── settings/                 ← 各屏保的样式设置 JSON 文件（按屏保 ID 命名）
+│   └── Clock.json            ← 示例：时钟屏保的样式设置
 │
 └── web/                      ← 主配置页 + 各屏保目录
     ├── index.html            ← 主配置页（屏保列表 + 预览 + 操作按钮）
@@ -52,10 +54,11 @@ This is a Windows screensaver application that supports **multiple web-based scr
 - `ConfigForm.cs`: Windowed form (1200x800) hosting a WebView2 that loads the main config page (`web/index.html`). Communicates with the page via `chrome.webview.postMessage`:
   - Sends `{ type: 'init', screensavers: [...], currentSelection: '...' }` on page load
   - Handles `selectScreensaver` → persists to `config.json`
-  - Handles `navigateToConfig` → navigates WebView2 to the screensaver's `config.html`
+  - Handles `navigateToConfig` → navigates WebView2 to the screensaver's `config.html` (not system browser)
+  - Handles `saveSettings` → persists screensaver settings to `settings/{id}.json`
   - Handles `closeConfig` → closes the form
-- `MainForm.cs`: Fullscreen form with WebView2 control, low-level keyboard/mouse hooks, and mouse movement detection. Loads the selected screensaver's `index.html` using virtual host mapping.
-- `ConfigManager.cs`: Static helper that reads/writes `config.json` and discovers available screensavers by scanning `web/` subdirectories. Each subfolder containing `index.html` is treated as a valid screensaver.
+- `MainForm.cs`: Fullscreen form with WebView2 control, low-level keyboard/mouse hooks, and mouse movement detection. Loads the selected screensaver's `index.html` using virtual host mapping. After page load, injects saved settings via `PostWebMessageAsJson({ type: 'loadSettings', settings })`.
+- `ConfigManager.cs`: Static helper that reads/writes `config.json`, discovers available screensavers by scanning `web/` subdirectories, and manages per-screensaver settings files in `settings/`. Each subfolder containing `index.html` is treated as a valid screensaver.
 - All WebView2 pages are served via `SetVirtualHostNameToFolderMapping` mapping `screensaver.local` → `web/` folder, providing a consistent same-origin environment that enables iframe previews and `postMessage` communication.
 
 ### Frontend (HTML/JavaScript/CSS)
@@ -63,8 +66,10 @@ This is a Windows screensaver application that supports **multiple web-based scr
 - **Each screensaver** is a self-contained subfolder. The convention requires at minimum an `index.html` entry point. An optional `config.html` provides per-screensaver settings.
 
 ### Configuration Persistence
-- `config.json` (alongside the executable) stores `{ "selectedScreensaver": "Clock" }`
-- The selected screensaver is saved when the user clicks "应用" in the main config page
+- `config.json` (alongside the executable) stores `{ "selectedScreensaver": "Clock" }` — which screensaver is active
+- `settings/{id}.json` stores per-screensaver style settings (e.g., `settings/Clock.json`)
+- **Settings flow**: config-ui.js (in WebView2) → `chrome.webview.postMessage({ type: 'saveSettings', id, settings })` → ConfigForm saves to disk → MainForm loads screensaver → `PostWebMessageAsJson({ type: 'loadSettings', settings })` → clock.js applies via `chrome.webview` message listener
+- If no saved settings exist (`settings/{id}.json` missing), the screensaver falls back to `window.appConfig` from `config.js`
 - Screensaver discovery is automatic: any subfolder under `web/` containing `index.html` appears in the list
 
 ## Adding a New Screensaver
@@ -83,4 +88,7 @@ This is a Windows screensaver application that supports **multiple web-based scr
 - The only NuGet dependency is `Microsoft.Web.WebView2` (version 1.0.3800.47).
 - Launch profiles are defined in `Properties\launchSettings.json` for easy testing of different modes.
 - The screensaver exits on any keyboard input (including function keys) or mouse click/wheel movement; mouse movement beyond a 10-pixel threshold also triggers exit.
+- Settings are persisted to `settings/` directory alongside the executable. Each screensaver has its own JSON file, created on first save.
+- To reset a screensaver's settings to defaults, delete its `settings/{id}.json` file.
+- `chrome.webview.addEventListener('message', ...)` is WebView2-specific IPC (C# → JS). `window.addEventListener('message', ...)` is standard browser cross-origin messaging (iframe ↔ parent). Both coexist in clock.js for different scenarios (MainForm injection vs. config page preview).
 - Preview mode (`/p`) is not yet implemented.

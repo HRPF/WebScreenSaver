@@ -53,6 +53,15 @@ function updateConfig(newConfig) {
     initClock();
 }
 
+// 监听来自 C# 宿主（MainForm）注入的已保存配置
+if (typeof chrome !== 'undefined' && chrome.webview) {
+    chrome.webview.addEventListener('message', function(e) {
+        if (e.data.type === 'loadSettings') {
+            updateConfig(e.data.settings);
+        }
+    });
+}
+
 // 监听来自父窗口的消息（用于配置更新）
 window.addEventListener('message', function(event) {
     // 安全性检查：仅接受来自同源的消息，但预览模式需要允许所有源

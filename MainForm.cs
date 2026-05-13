@@ -275,6 +275,21 @@ namespace WebClockScreensaver
                 webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
                 webView.CoreWebView2.Settings.IsStatusBarEnabled = false;
                 webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
+
+                // 页面加载完成后注入已保存的配置
+                webView.CoreWebView2.NavigationCompleted += (s, e2) =>
+                {
+                    if (e2.IsSuccess)
+                    {
+                        var settings = ConfigManager.GetSettings(selected);
+                        if (settings.HasValue)
+                        {
+                            var msg = new { type = "loadSettings", settings = settings.Value };
+                            string json = System.Text.Json.JsonSerializer.Serialize(msg);
+                            webView.CoreWebView2.PostWebMessageAsJson(json);
+                        }
+                    }
+                };
             }
             catch (Exception ex)
             {

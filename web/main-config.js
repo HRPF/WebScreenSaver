@@ -4,6 +4,7 @@
     var screensavers = [];
     var currentSelection = null;
     var pendingSelection = null;
+    var savedSettings = null;
 
     var listEl = document.getElementById('screensaver-list');
     var frame = document.getElementById('preview-frame');
@@ -25,6 +26,16 @@
         chrome.webview.postMessage(JSON.stringify(obj));
     }
 
+    // ── Forward saved settings to the preview iframe ──
+    function forwardSettingsToPreview() {
+        if (savedSettings && frame.contentWindow) {
+            frame.contentWindow.postMessage({
+                type: 'updateConfig',
+                config: savedSettings
+            }, '*');
+        }
+    }
+
     // ── Show info text in the action bar ──
     function setActionInfo(text, isHint) {
         actionInfo.textContent = text || '';
@@ -41,10 +52,15 @@
                 screensavers = msg.screensavers || [];
                 currentSelection = msg.currentSelection || null;
                 pendingSelection = currentSelection;
+                savedSettings = msg.settings || null;
                 renderList();
                 if (currentSelection) {
                     selectScreensaver(currentSelection);
                 }
+                break;
+            case 'loadSettings':
+                savedSettings = msg.settings || null;
+                forwardSettingsToPreview();
                 break;
             case 'configNotFound':
                 setActionInfo('这个屏幕保护程序没有可以设置的选项', true);
@@ -56,7 +72,7 @@
     // ── Listen for previewReady from iframe ──
     window.addEventListener('message', function (e) {
         if (e.data && e.data.type === 'previewReady') {
-            // Preview iframe has loaded
+            forwardSettingsToPreview();
         }
     });
 
@@ -89,6 +105,7 @@
     // ── Select a screensaver ──
     function selectScreensaver(id) {
         pendingSelection = id;
+        savedSettings = null;
         setActionInfo('点击"样式设置"可修改外观，点击"启用屏保"将其设为屏幕保护程序');
 
         // Update card highlight
@@ -105,6 +122,9 @@
         // Enable buttons
         btnConfigure.disabled = false;
         btnApply.disabled = false;
+
+        // Request saved settings for this screensaver
+        sendToHost({ type: 'requestSettings', id: id });
     }
 
     // ── Configure button: open config page in system browser ──

@@ -9,7 +9,9 @@ namespace WebClockScreensaver;
 public class ConfigForm : Form
 {
     private WebView2 webView = null!;
-    private bool initialized = false;
+    private string webFolder = null!;
+    private Button btnBack = null!;
+    private Panel toolbar = null!;
 
     public ConfigForm()
     {
@@ -27,8 +29,58 @@ public class ConfigForm : Form
         KeyPreview = true;
         KeyDown += (_, e) =>
         {
-            if (e.KeyCode == Keys.Escape) Close();
+            if (e.KeyCode == Keys.Escape) HandleBack();
         };
+
+        // 顶部工具栏
+        toolbar = new Panel
+        {
+            Height = 40,
+            Dock = DockStyle.Top,
+            BackColor = System.Drawing.Color.FromArgb(20, 20, 40),
+        };
+
+        btnBack = new Button
+        {
+            Text = "← 返回",
+            FlatStyle = FlatStyle.Flat,
+            ForeColor = System.Drawing.Color.White,
+            BackColor = System.Drawing.Color.Transparent,
+            FlatAppearance = { BorderSize = 0 },
+            TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
+            Size = new System.Drawing.Size(80, 40),
+            Location = new System.Drawing.Point(4, 0),
+            Cursor = Cursors.Hand,
+        };
+        btnBack.Click += (_, _) => HandleBack();
+
+        var lblTitle = new Label
+        {
+            Text = "屏保配置",
+            ForeColor = System.Drawing.Color.White,
+            BackColor = System.Drawing.Color.Transparent,
+            TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+            Dock = DockStyle.Fill,
+            Font = new System.Drawing.Font("Microsoft YaHei UI", 10),
+        };
+
+        toolbar.Controls.Add(btnBack);
+        toolbar.Controls.Add(lblTitle);
+
+        Controls.Add(toolbar);
+    }
+
+    private void HandleBack()
+    {
+        var url = webView.CoreWebView2?.Source;
+        if (url != null && url != "https://screensaver.local/index.html")
+        {
+            webView.CoreWebView2.Navigate("https://screensaver.local/index.html");
+        }
+        else
+        {
+            Close();
+        }
     }
 
     private async void InitializeWebView()
@@ -41,7 +93,7 @@ public class ConfigForm : Form
             var env = await CoreWebView2Environment.CreateAsync();
             await webView.EnsureCoreWebView2Async(env);
 
-            string webFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "web");
+            webFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "web");
 
             webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
                 "screensaver.local", webFolder,
@@ -66,10 +118,18 @@ public class ConfigForm : Form
 
     private void OnNavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
     {
-        if (!initialized && e.IsSuccess)
+        if (!e.IsSuccess) return;
+        var url = webView.CoreWebView2.Source;
+
+        if (url == "https://screensaver.local/index.html")
         {
-            initialized = true;
+            btnBack.Visible = false;
             SendInitData();
+        }
+        else if (url.EndsWith("/config.html"))
+        {
+            btnBack.Visible = true;
+            InjectSettingsToPage(url);
         }
     }
 
@@ -77,10 +137,28 @@ public class ConfigForm : Form
     {
         var screensavers = ConfigManager.DiscoverScreensavers();
         var current = ConfigManager.GetSelectedScreensaver();
+        var settings = ConfigManager.GetSettings(current);
 
-        var data = new { type = "init", screensavers, currentSelection = current };
+        var data = new { type = "init", screensavers, currentSelection = current, settings };
         string json = System.Text.Json.JsonSerializer.Serialize(data);
         webView.CoreWebView2.PostWebMessageAsJson(json);
+    }
+
+    private void InjectSettingsToPage(string url)
+    {
+        // 从 URL 提取屏保 ID: "https://screensaver.local/Clock/config.html" → "Clock"
+        string prefix = "https://screensaver.local/";
+        string suffix = "/config.html";
+        if (!url.StartsWith(prefix) || !url.EndsWith(suffix)) return;
+        string id = url.Substring(prefix.Length, url.Length - prefix.Length - suffix.Length);
+
+        var settings = ConfigManager.GetSettings(id);
+        if (settings.HasValue)
+        {
+            var msg = new { type = "loadSettings", settings = settings.Value };
+            string json = System.Text.Json.JsonSerializer.Serialize(msg);
+            webView.CoreWebView2.PostWebMessageAsJson(json);
+        }
     }
 
     private void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -103,6 +181,12 @@ public class ConfigForm : Form
                     break;
                 case "navigateToConfig":
                     HandleNavigateToConfig(root);
+                    break;
+                case "saveSettings":
+                    HandleSaveSettings(root);
+                    break;
+                case "requestSettings":
+                    HandleRequestSettings(root);
                     break;
                 case "closeConfig":
                     Close();
@@ -132,14 +216,10 @@ public class ConfigForm : Form
             string id = idProp.GetString() ?? "";
             if (!string.IsNullOrEmpty(id))
             {
-                string configPath = Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory, "web", id, "config.html");
+                string configPath = Path.Combine(webFolder, id, "config.html");
                 if (File.Exists(configPath))
                 {
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(configPath)
-                    {
-                        UseShellExecute = true
-                    });
+                    webView.CoreWebView2.Navigate($"https://screensaver.local/{id}/config.html");
                 }
                 else
                 {
@@ -147,6 +227,37 @@ public class ConfigForm : Form
                     string json = System.Text.Json.JsonSerializer.Serialize(msg);
                     webView.CoreWebView2.PostWebMessageAsJson(json);
                 }
+            }
+        }
+    }
+
+    private void HandleRequestSettings(System.Text.Json.JsonElement root)
+    {
+        if (root.TryGetProperty("id", out var idProp))
+        {
+            string id = idProp.GetString() ?? "";
+            if (!string.IsNullOrEmpty(id))
+            {
+                var settings = ConfigManager.GetSettings(id);
+                if (settings.HasValue)
+                {
+                    var msg = new { type = "loadSettings", settings = settings.Value };
+                    string json = System.Text.Json.JsonSerializer.Serialize(msg);
+                    webView.CoreWebView2.PostWebMessageAsJson(json);
+                }
+            }
+        }
+    }
+
+    private void HandleSaveSettings(System.Text.Json.JsonElement root)
+    {
+        if (root.TryGetProperty("id", out var idProp) &&
+            root.TryGetProperty("settings", out var settingsProp))
+        {
+            string id = idProp.GetString() ?? "";
+            if (!string.IsNullOrEmpty(id))
+            {
+                ConfigManager.SaveSettings(id, settingsProp);
             }
         }
     }

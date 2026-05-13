@@ -36,8 +36,11 @@ web/
 └── 你的屏保文件夹/           ← 需要生成的内容
     ├── index.html           ← 屏保入口文件（必须）
     ├── config.html          ← 样式配置页（可选）
-    ├── config.js            ← 配置对象（可选，配合 config.html 使用）
+    ├── config.js            ← 默认配置对象（可选，配合 config.html 使用）
     └── 其他资源（CSS、JS、图片等）
+
+settings/                    ← 运行时自动生成（用户保存配置后）
+└── 你的屏保文件夹.json       ← 持久化的样式设置，由 C# 后端读写
 ```
 
 ### index.html —— 屏保入口（必须）
@@ -48,6 +51,26 @@ web/
 - 无滚动条
 - 不自带任何 UI 控件（按钮、菜单等）
 - 所有资源使用相对路径引用
+
+#### 接收已保存的配置
+
+屏保运行在主程序 WebView2 中，C# 后端在页面加载完成后会自动注入已保存的样式配置。屏保需要监听 `chrome.webview` 消息以接收配置：
+
+```javascript
+// 监听 C# 后端注入的已保存配置
+if (typeof chrome !== 'undefined' && chrome.webview) {
+    chrome.webview.addEventListener('message', function(e) {
+        if (e.data.type === 'loadSettings') {
+            // e.data.settings 包含完整的配置对象
+            // 合并到当前配置并重新渲染
+            config = { ...defaultConfig, ...(window.appConfig || {}), ...e.data.settings };
+            render();
+        }
+    });
+}
+```
+
+如果没有已保存的配置（首次运行），C# 不会发送 `loadSettings` 消息，屏保应使用 `config.js` 中的 `window.appConfig` 默认值。
 
 #### 预览模式支持
 
@@ -66,6 +89,25 @@ if (isPreviewMode) {
 预览模式下应：
 - 跳过开场动画或长过渡动画, 立即显示完整内容（可选）
 - 发送 `previewReady` 消息通知父窗口
+
+#### 运行时配置更新（预览 iframe）
+
+当屏保在配置页的预览 iframe 中运行时，需要监听来自父窗口的实时配置更新：
+
+```javascript
+window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'updateConfig') {
+        // event.data.config 包含新的配置对象
+        applyNewConfig(event.data.config);
+    }
+});
+```
+
+**两种消息机制的说明：**
+- `chrome.webview.addEventListener('message', ...)` — 来自 C# 后端，用于加载已保存的配置（全屏屏保和配置页均可用）
+- `window.addEventListener('message', ...)` — 来自父窗口（配置页），用于实时预览更新（仅在预览 iframe 中生效）
+
+两者不冲突，应同时实现。
 
 #### 主屏保程序如何找到入口、打开网页
 
@@ -94,23 +136,76 @@ if (isPreviewMode) {
 
 #### 用途
 
-允许用户在主配置页中点击"样式设置"按钮后，在浏览器中打开此页面修改屏保的颜色、速度、密度等参数。
+允许用户在主配置页中点击"样式设置"按钮后，在主程序 WebView2 中打开此页面修改屏保的颜色、速度、密度等参数。
 
-#### 配置持久化
+#### 配置持久化（WebView2 模式）
 
-可通过任何可行的方式将配置保存在本地，使得下次打开屏保或配置页时能自动加载并呈现。
+主程序将配置页加载在 WebView2 中，通过 `chrome.webview.postMessage` 让 C# 后端代为读写磁盘文件。
 
-#### 运行时配置更新
-
-屏保需要监听来自父窗口的运行时配置更新消息：
+**保存配置到 C# 后端：**
 
 ```javascript
-window.addEventListener('message', function(event) {
-    if (event.data && event.data.type === 'updateConfig') {
-        // event.data.config 包含新的配置对象
-        applyNewConfig(event.data.config);
+// 检测是否在 WebView2 中运行
+const isWebView = typeof chrome !== 'undefined' && chrome.webview;
+
+function saveConfig(configObject) {
+    if (isWebView) {
+        chrome.webview.postMessage(JSON.stringify({
+            type: 'saveSettings',
+            id: screensaverId,   // 屏保文件夹名称
+            settings: configObject
+        }));
+        alert('设置已保存！');
     }
-});
+}
+```
+
+**加载已保存的配置（C# 后端注入）：**
+
+```javascript
+if (isWebView) {
+    chrome.webview.addEventListener('message', function(e) {
+        if (e.data.type === 'loadSettings') {
+            // 使用 C# 注入的已保存配置回填表单
+            currentConfig = { ...defaultConfig, ...e.data.settings };
+            updateForm();
+            updatePreview();
+        }
+    });
+}
+```
+
+配置存储在 `settings/{screensaverId}.json` 文件中，与主程序 `config.json` 同级。
+
+#### 预览 iframe 实时更新
+
+配置页通常包含一个预览 iframe（加载 `index.html?preview=true`），配置变化时通过 `window.postMessage` 实时同步到预览：
+
+```javascript
+function updatePreview() {
+    if (previewFrame && previewFrame.contentWindow) {
+        previewFrame.contentWindow.postMessage({
+            type: 'updateConfig',
+            config: currentConfig
+        }, '*');
+    }
+}
+```
+
+#### 总结：完整消息流
+
+```
+保存配置：
+  config-ui.js → chrome.webview.postMessage({ type: "saveSettings", id, settings })
+    → C# ConfigManager.SaveSettings() → 写入 settings/{id}.json
+
+加载已保存配置：
+  C# → PostWebMessageAsJson({ type: "loadSettings", settings: {...} })
+    → config-ui.js chrome.webview message 监听 → 回填表单
+  
+预览 iframe 更新：
+  config-ui.js → previewFrame.contentWindow.postMessage({ type: "updateConfig", config })
+    → clock.js window.addEventListener('message', ...) → 重新渲染
 ```
 
 ## 兼容性

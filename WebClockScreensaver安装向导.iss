@@ -3,7 +3,7 @@
 ; Non-commercial use only
 
 #define MyAppName "WebScreenSaver"
-#define MyAppVersion "0.4"
+#define MyAppVersion "0.5"
 #define MyAppExeName "WebScreenSaver.scr"
 
 [Setup]
@@ -12,7 +12,7 @@
 AppId={{9FF5F5C1-3002-42DA-95B3-C252A5CFE428}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
 DefaultDirName={commonpf32}\{#MyAppName}
 ; "ArchitecturesAllowed=x64compatible" specifies that Setup cannot run
 ; on anything but x64 and Windows 11 on Arm.
@@ -24,6 +24,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
+InfoBeforeFile=RELEASE_NOTES.txt
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 OutputDir=.\
